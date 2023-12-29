@@ -7,6 +7,7 @@ const CreateAssessment = ({ setAssessments }) => {
   const [assessmentName, setAssessmentName] = useState('');
   const [assessmentDate, setAssessmentDate] = useState('');
   const [assessmentTime, setAssessmentTime] = useState('');
+  const [allowedEmails, setAllowedEmails] = useState('');
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState({
     text: '',
@@ -53,6 +54,7 @@ const CreateAssessment = ({ setAssessments }) => {
         date: assessmentDate,
         time: assessmentTime,
         questions,
+        allowedEmails: allowedEmails.split(',').map(email => email.trim()), // convert to array
       };
 
       const headers = {
@@ -127,6 +129,20 @@ const CreateAssessment = ({ setAssessments }) => {
                 onChange={(e) => setAssessmentTime(e.target.value)}
               />
             </div>
+          </div>
+
+           {/* Allowed Emails Section */}
+           <div className="mb-4">
+            <label htmlFor="allowedEmails" className="text-gray-700 block">
+              Allowed Emails (comma-separated)
+            </label>
+            <input
+              type="text"
+              id="allowedEmails"
+              className="w-full p-2 border rounded mt-2"
+              value={allowedEmails}
+              onChange={(e) => setAllowedEmails(e.target.value)}
+            />
           </div>
 
           {/* Questions Section */}

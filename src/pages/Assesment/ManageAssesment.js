@@ -96,6 +96,18 @@ const ManageAssessment = () => {
     });
   };
 
+  const handleAllowedEmailsChange = (e) => {
+    const { value } = e.target;
+    const cleanedEmails = value
+      .split(',')
+      .map(email => email.trim()) // Trim extra spaces around each email
+      // .filter(email => email !== ''); // Remove empty strings
+  
+    setSelectedAssessment((prevAssessment) => ({ ...prevAssessment, allowedEmails: cleanedEmails }));
+  };
+  
+  
+
   const addNewQuestion = () => {
     setSelectedAssessment((prevAssessment) => {
       const updatedQuestions = [...prevAssessment.questions, createEmptyQuestion()];
@@ -258,6 +270,20 @@ const ManageAssessment = () => {
                   Add New Question
                 </button>
               </div>
+
+              {/* Allowed Emails Section */}
+              <div className="mt-6">
+                <h2 className="text-xl font-semibold mb-2">Allowed Emails</h2>
+                <input
+                type="text"
+                className="w-full p-2 border rounded mt-2"
+                placeholder="Enter allowed emails (comma-separated)"
+                value={selectedAssessment.allowedEmails ? selectedAssessment.allowedEmails.join(', ') : ''}
+                onChange={handleAllowedEmailsChange}
+              />
+
+
+              </div>
             </div>
 
             {/* Actions Section */}
@@ -283,4 +309,5 @@ const ManageAssessment = () => {
 };
 
 export default connect()(ManageAssessment);
+
 
