@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { setAssessments } from '../../Redux/reducer';
+import { setAssessments, setAssessmentState, resetAssessmentState } from '../../Redux/reducer';
+import { useDispatch, useSelector } from 'react-redux';
 
-const CreateAssessment = ({ setAssessments }) => {
-  const [assessmentName, setAssessmentName] = useState('');
-  const [assessmentDate, setAssessmentDate] = useState('');
-  const [assessmentTime, setAssessmentTime] = useState('');
-  const [allowedEmails, setAllowedEmails] = useState('');
-  const [questions, setQuestions] = useState([]);
-  const [newQuestion, setNewQuestion] = useState({
+const CreateAssessment = ({ setAssessments, setAssessmentState, resetAssessmentState}) => {
+
+  const dispatch = useDispatch();
+  const assessmentState = useSelector((state) => state.user.assessmentState);
+  useEffect(() => {
+    // Save assessment state to Redux whenever it changes
+    dispatch(setAssessmentState(assessmentState));
+  }, [assessmentState, dispatch]);
+
+  const [assessmentName, setAssessmentName] = useState(assessmentState.assessmentName || '');
+  const [assessmentDate, setAssessmentDate] = useState(assessmentState.assessmentDate || '');
+  const [assessmentTime, setAssessmentTime] = useState(assessmentState.assessmentTime || '');
+  const [allowedEmails, setAllowedEmails] = useState(assessmentState.allowedEmails || '');
+  const [questions, setQuestions] = useState(assessmentState.questions || []);
+  const [newQuestion, setNewQuestion] = useState(assessmentState.newQuestion || {
     text: '',
     options: [{ text: '' }, { text: '' }, { text: '' }, { text: '' }],
     correctAnswer: 0,
@@ -22,12 +31,14 @@ const CreateAssessment = ({ setAssessments }) => {
       newQuestion.options.every((opt) => opt.text.trim() !== '')
     ) {
       setQuestions([...questions, newQuestion]);
+      dispatch(setAssessmentState({ ...assessmentState, questions: [...questions, newQuestion] }));
       setNewQuestion({
         text: '',
         options: [{ text: '' }, { text: '' }, { text: '' }, { text: '' }],
         correctAnswer: 0,
       });
     }
+
   };
 
   // Function to remove a question from the list
@@ -35,6 +46,9 @@ const CreateAssessment = ({ setAssessments }) => {
     const updatedQuestions = [...questions];
     updatedQuestions.splice(index, 1);
     setQuestions(updatedQuestions);
+
+    // Dispatch the updated assessment state to Redux
+    dispatch(setAssessmentState({ ...assessmentState, questions: updatedQuestions }));
   };
 
   // Function to submit the assessment
@@ -69,6 +83,18 @@ const CreateAssessment = ({ setAssessments }) => {
       // Optionally, you can redirect the user to a different page or show a success message
       alert('Assessment created successfully');
 
+      dispatch(setAssessmentState({
+        assessmentName: '',
+        assessmentDate: '',
+        assessmentTime: '',
+        allowedEmails: '',
+        questions: [],
+        newQuestion: {
+          text: '',
+          options: [{ text: '' }, { text: '' }, { text: '' }, { text: '' }],
+          correctAnswer: 0,
+        },
+      }));
       // Reset form fields
       setAssessmentName('');
       setAssessmentDate('');
@@ -79,10 +105,58 @@ const CreateAssessment = ({ setAssessments }) => {
         options: [{ text: '' }, { text: '' }, { text: '' }, { text: '' }],
         correctAnswer: 0,
       });
+
     } catch (error) {
       console.error('Error creating assessment:', error);
       // Handle error, show error message to the user, etc.
     }
+  };
+
+
+  // Dispatch functions for updating state
+  const dispatchAssessmentName = (name) => {
+    dispatch(setAssessmentState({ ...assessmentState, assessmentName: name }));
+  };
+
+  const dispatchAssessmentDate = (date) => {
+    dispatch(setAssessmentState({ ...assessmentState, assessmentDate: date }));
+  };
+
+  const dispatchAssessmentTime = (time) => {
+    dispatch(setAssessmentState({ ...assessmentState, assessmentTime: time }));
+  };
+
+  const dispatchAllowedEmails = (emails) => {
+    dispatch(setAssessmentState({ ...assessmentState, allowedEmails: emails }));
+  };
+
+  const handleAssessmentNameChange = (e) => {
+    const newName = e.target.value;
+    setAssessmentName(newName);
+    dispatchAssessmentName(newName);
+  };
+
+  const handleAssessmentDateChange = (e) => {
+    const newDate = e.target.value;
+    setAssessmentDate(newDate);
+    dispatchAssessmentDate(newDate);
+  };
+
+  const handleAssessmentTimeChange = (e) => {
+    const newTime = e.target.value;
+    setAssessmentTime(newTime);
+    dispatchAssessmentTime(newTime);
+  };
+
+  const handleAllowedEmailsChange = (e) => {
+    const newEmails = e.target.value;
+    setAllowedEmails(newEmails);
+    dispatchAllowedEmails(newEmails);
+  };
+
+  const handleCancelClick = () => {
+    // Reset assessment state to initial values when "Cancel" button is clicked
+    resetAssessmentState();
   };
 
   return (
@@ -101,7 +175,8 @@ const CreateAssessment = ({ setAssessments }) => {
               id="assessmentName"
               className="w-full p-2 border rounded mt-2"
               value={assessmentName}
-              onChange={(e) => setAssessmentName(e.target.value)}
+              // onChange={(e) => setAssessmentName(e.target.value)}
+              onChange={handleAssessmentNameChange}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -114,7 +189,8 @@ const CreateAssessment = ({ setAssessments }) => {
                 id="assessmentDate"
                 className="w-full p-2 border rounded mt-2"
                 value={assessmentDate}
-                onChange={(e) => setAssessmentDate(e.target.value)}
+                // onChange={(e) => setAssessmentDate(e.target.value)}
+                onChange={handleAssessmentDateChange} 
               />
             </div>
             <div>
@@ -126,7 +202,8 @@ const CreateAssessment = ({ setAssessments }) => {
                 id="assessmentTime"
                 className="w-full p-2 border rounded mt-2"
                 value={assessmentTime}
-                onChange={(e) => setAssessmentTime(e.target.value)}
+                // onChange={(e) => setAssessmentTime(e.target.value)}
+                onChange={handleAssessmentTimeChange} 
               />
             </div>
           </div>
@@ -141,7 +218,8 @@ const CreateAssessment = ({ setAssessments }) => {
               id="allowedEmails"
               className="w-full p-2 border rounded mt-2"
               value={allowedEmails}
-              onChange={(e) => setAllowedEmails(e.target.value)}
+              // onChange={(e) => setAllowedEmails(e.target.value)}
+              onChange={handleAllowedEmailsChange} 
             />
           </div>
 
@@ -233,7 +311,7 @@ const CreateAssessment = ({ setAssessments }) => {
               Create Assessment
             </button>
             <a href='/admindashboard'>
-            <button className="bg-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-400">
+            <button className="bg-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-400" onClick={handleCancelClick}>
               Cancel
             </button>
             </a>
@@ -245,7 +323,7 @@ const CreateAssessment = ({ setAssessments }) => {
 };
 
 const mapDispatchToProps = {
-  setAssessments,
+  setAssessments, setAssessmentState, resetAssessmentState
 };
 
 export default connect(null, mapDispatchToProps)(CreateAssessment);

@@ -11,6 +11,7 @@ const StudentLoginPage = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/auth/studentlogin', { email, password });
       console.log('Login successful! Token:', response.data.token);
+      localStorage.setItem('email',email);
       Navigate('/studentdashboard');
       // You can save the token in the local storage and navigate to the student dashboard or any other page
     } catch (error) {

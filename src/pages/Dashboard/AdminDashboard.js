@@ -12,6 +12,14 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
+
+    const authToken = localStorage.getItem('token');
+    if (!authToken) {
+      // Redirect the user to the login page or handle the unauthorized access appropriately
+      navigate('/signin');
+      return;
+    }
+
     const fetchAssessments = async () => {
       try {
         const response = await axios.get(`${host}/api/assesment/assessments`, {headers}); // Update the endpoint based on your server
@@ -23,7 +31,7 @@ const AdminDashboard = () => {
     };
 
     fetchAssessments();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gray-100">

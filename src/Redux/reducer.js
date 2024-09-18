@@ -2,8 +2,18 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   assessments: [],
-  isAuthenticated: false,
-  userDetails: null,
+  assessmentState: {
+    assessmentName: '',
+    assessmentDate: '',
+    assessmentTime: '',
+    allowedEmails: '',
+    questions: [],
+    newQuestion: {
+      text: '',
+      options: [{ text: '' }, { text: '' }, { text: '' }, { text: '' }],
+      correctAnswer: 0,
+    },
+  },
   // Add more initial state properties as needed
 };
 
@@ -14,19 +24,18 @@ export const user = createSlice({
     setAssessments: (state, action) => {
       state.assessments = action.payload;
     },
-    authenticateUser: (state, action) => {
-      state.isAuthenticated = true;
-      state.userDetails = action.payload;
+
+    setAssessmentState: (state, action) => {
+      state.assessmentState = action.payload;
     },
-    logoutUser: (state) => {
-      state.isAuthenticated = false;
-      state.userDetails = null;
+
+    resetAssessmentState: (state) => {
+      // Reset assessment state to initial values
+      state.assessmentState = initialState.assessmentState;
     },
     // Add more reducer functions as needed
   },
 });
 
-export const { setAssessments, authenticateUser, logoutUser } = user.actions;
+export const { setAssessments, setAssessmentState, resetAssessmentState } = user.actions;
 export default user.reducer;
-
-  
